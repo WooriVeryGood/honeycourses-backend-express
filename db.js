@@ -3,7 +3,7 @@ require('dotenv').config();
 
 const pool = mysql.createPool({
   connectionLimit: 10,
-  host: 'localhost',
+  host: process.env.DB_HOST,
   user: 'root',
   password: process.env.DB_PW,
   database: 'railgun',
