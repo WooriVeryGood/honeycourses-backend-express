@@ -5,20 +5,15 @@ const cors = require("cors");
 
 const app = express();
 
-app.use(logger('dev'));
-app.use(cors({
+const corsOptions = {
   origin: 'https://honeycourses.com'
-}));
+};
+
+app.use(logger('dev'));
+app.use(cors(corsOptions));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
-app.use('/api', coursesRouter);
-
-// Add error handling middleware to catch unauthorized requests
-app.use(function (err, req, res, next) {
-  if (err.name === 'UnauthorizedError') {
-    res.status(401).json({ error: 'Unauthorized' });
-  }
-});
+app.use('/api', coursesRouter); // add your API routes here
 
 module.exports = app;
