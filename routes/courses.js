@@ -38,19 +38,33 @@ router.get("/courses", (req, res) => {
 //수업 리뷰 받아오기
 router.get("/courses/:id/reviews", (req, res) => {
   const courseId = req.params.id;
-  pool.query(
-    "SELECT * FROM reviews WHERE course_id = ?",
-    [courseId],
-    (error, results) => {
+  const getReviewsQuery = "SELECT * FROM reviews WHERE course_id = ?";
+  const getCourseNameQuery = "SELECT course_name FROM courses WHERE course_id = ?";
+
+  pool.query(getReviewsQuery, [courseId], (error, reviews) => {
+    if (error) {
+      console.error(error);
+      res.status(500).send("Error retrieving reviews from the database");
+      return;
+    }
+
+    pool.query(getCourseNameQuery, [courseId], (error, courseResult) => {
       if (error) {
         console.error(error);
-        res.status(500).send("Error retrieving reviews from database");
-      } else {
-        res.json(results);
+        res.status(500).send("Error retrieving course name from the database");
+        return;
       }
-    }
-  );
+
+      const courseName = courseResult[0]?.course_name;
+      const reviewsWithCourseName = reviews.map((review) => {
+        return { ...review, course_name: courseName };
+      });
+
+      res.json(reviewsWithCourseName);
+    });
+  });
 });
+
 
 // id에 해당하는 강의에 새로운 리뷰 추가
 router.post("/courses/:id/reviews", (req, res) => {
