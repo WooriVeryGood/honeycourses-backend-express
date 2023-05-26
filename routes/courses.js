@@ -9,20 +9,6 @@ router.get("/", (req, res) => {
   console.log("안뇽, 여긴 api 루트양. 여긴 왜왔니?");
 });
 
-/* router.post('/', function(req, res, next) {
-    const courseData = req.body;
-    const sql = 'INSERT INTO courses SET ?';
-  
-    db.query(sql, courseData, function(err, result) {
-      if (err) {
-        console.error(err);
-        res.sendStatus(500);
-      } else {
-        res.status(201).json({ message: 'Course added successfully!' });
-      }
-    });
-  });*/
-
 // 수업 리스트 받아오기
 router.get("/courses", (req, res) => {
   pool.query("SELECT * FROM courses", (error, results) => {
@@ -38,33 +24,40 @@ router.get("/courses", (req, res) => {
 //수업 리뷰 받아오기
 router.get("/courses/:id/reviews", (req, res) => {
   const courseId = req.params.id;
-  const getReviewsQuery = "SELECT * FROM reviews WHERE course_id = ?";
-  const getCourseNameQuery = "SELECT course_name FROM courses WHERE course_id = ?";
-
-  pool.query(getReviewsQuery, [courseId], (error, reviews) => {
-    if (error) {
-      console.error(error);
-      res.status(500).send("Error retrieving reviews from the database");
-      return;
-    }
-
-    pool.query(getCourseNameQuery, [courseId], (error, courseResult) => {
+  pool.query(
+    "SELECT * FROM reviews WHERE course_id = ?",
+    [courseId],
+    (error, results) => {
       if (error) {
         console.error(error);
-        res.status(500).send("Error retrieving course name from the database");
-        return;
+        res.status(500).send("Error retrieving reviews from database");
+      } else {
+        res.json(results);
       }
-
-      const courseName = courseResult[0]?.course_name;
-      const reviewsWithCourseName = reviews.map((review) => {
-        return { ...review, course_name: courseName };
-      });
-
-      res.json(reviewsWithCourseName);
-    });
-  });
+    }
+  );
 });
 
+// 수업 이름 받아오기
+router.get("/courses/:id/name", (req, res) => {
+  const courseId = req.params.id;
+  pool.query(
+    "SELECT course_name FROM courses where course_id = ?",
+    [courseId],
+    (error, results) => {
+      if (error) {
+        console.error(error);
+        res.status(500).send("Error retrieving courses from database");
+      } else {
+        if (results.length === 0) {
+          res.status(404).send("No such course found.");
+        } else {
+          res.json(results);
+        }
+      }
+    }
+  );
+});
 
 // id에 해당하는 강의에 새로운 리뷰 추가
 router.post("/courses/:id/reviews", (req, res) => {
@@ -101,6 +94,7 @@ router.post("/courses", (req, res) => {
   });
 });
 
+// 추천, 비추 업데이트
 router.post("/courses/:id/reviews/:rid", (req, res) => {
   // const courseId = req.params.id;
   const reviewId = req.params.rid;
