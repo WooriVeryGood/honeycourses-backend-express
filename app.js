@@ -13,7 +13,7 @@ dayjs.extend(timezone);
 const app = express();
 
 const corsOptions = {
-  origin: ['https://honeycourses.com/', 'https://dev.honeycourses.com']
+  origin: ['https://honeycourses.com/', 'https://dev.honeycourses.com', 'http://localhost:3001']
 };
 
 const morganMiddleware = logger(function (tokens, req, res) {
