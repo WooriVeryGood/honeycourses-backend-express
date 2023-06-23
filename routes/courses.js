@@ -80,10 +80,10 @@ router.post("/courses/:id/reviews", (req, res) => {
 
 // 새로운 수업 추가
 router.post("/courses", (req, res) => {
-  const { courseName, courseCredit, courseCategory } = req.body;
-  const sql = `INSERT INTO courses (course_name, course_credit, course_category) VALUES (?, ?, ?)`;
+  const { courseName, courseCredit, courseCategory, youGuanStat } = req.body;
+  const sql = `INSERT INTO courses (course_name, course_credit, course_category, isYouguan) VALUES (?, ?, ?, ?)`;
 
-  pool.query(sql, [courseName, courseCredit, courseCategory], (err, result) => {
+  pool.query(sql, [courseName, courseCredit, courseCategory, youGuanStat], (err, result) => {
     if (err) {
       console.error(err);
       res.status(500).send("Error adding courses to the database");
